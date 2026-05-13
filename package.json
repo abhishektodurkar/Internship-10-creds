@@ -1,0 +1,27 @@
+{
+  "name": "aems-monorepo",
+  "private": true,
+  "version": "0.1.0",
+  "packageManager": "pnpm@10.0.0",
+  "scripts": {
+    "prepare:local": "node ./scripts/prepare-local.mjs",
+    "dev": "pnpm run prepare:local && concurrently -n API,WEB,AI -c cyan,magenta,green \"pnpm --filter @aems/api dev\" \"pnpm --filter @aems/web dev --host\" \"pnpm run dev:ai\"",
+    "dev:ai": "cd apps/ai-service && python -m pip install -r requirements.txt && python -m uvicorn src.api.main:app --host 0.0.0.0 --port 8000 --reload",
+    "dev:webapi": "pnpm run prepare:local && concurrently -n API,WEB -c cyan,magenta \"pnpm --filter @aems/api dev\" \"pnpm --filter @aems/web dev --host\"",
+    "build": "pnpm -r build",
+    "lint": "pnpm -r lint",
+    "format": "pnpm -r format"
+  },
+  "pnpm": {
+    "onlyBuiltDependencies": [
+      "@prisma/client",
+      "@prisma/engines",
+      "bcrypt",
+      "esbuild",
+      "prisma"
+    ]
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  }
+}

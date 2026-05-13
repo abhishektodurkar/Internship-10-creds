@@ -1,0 +1,14 @@
+node_modules
+.pnpm-store
+.env
+.env.*
+dist
+build
+coverage
+.vscode
+.DS_Store
+__pycache__
+.pytest_cache
+.venv
+chroma_db
+uploads
