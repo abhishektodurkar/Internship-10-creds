@@ -1,0 +1,37 @@
+version: '3.9'
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: aems
+    ports: ['5432:5432']
+    volumes: [pgdata:/var/lib/postgresql/data]
+
+  api:
+    build:
+      context: .
+      dockerfile: apps/api/Dockerfile
+    env_file: [apps/api/.env]
+    ports: ['4000:4000']
+    depends_on: [postgres]
+
+  web:
+    build:
+      context: .
+      dockerfile: apps/web/Dockerfile
+    env_file: [apps/web/.env]
+    ports: ['5173:5173']
+    depends_on: [api]
+
+  ai:
+    build:
+      context: .
+      dockerfile: apps/ai-service/Dockerfile
+    env_file: [apps/ai-service/.env]
+    ports: ['8000:8000']
+    volumes: ['./apps/ai-service/uploads:/app/uploads','./apps/ai-service/chroma_db:/app/chroma_db']
+
+volumes:
+  pgdata:
