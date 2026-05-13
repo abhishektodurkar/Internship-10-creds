@@ -122,6 +122,7 @@ model Shift {
   endTime   String
   createdAt DateTime @default(now())
   company   Company  @relation(fields: [companyId], references: [id])
+  attendances Attendance[]
 }
 
 model Attendance {
