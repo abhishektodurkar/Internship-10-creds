@@ -8,6 +8,7 @@ import { listBatches, listMachineLogs } from '../features/industry/manufacturing
 import { listShipments } from '../features/industry/logistics/service';
 import { listInventory } from '../features/industry/retail/service';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer } from 'recharts';
+import { chatWithAi, uploadCompanyPdf } from '../features/core/api/ai-client';
 
 export function AppShell(): JSX.Element {
   const token = import.meta.env.VITE_DEV_JWT_TOKEN as string | undefined;
@@ -20,6 +21,8 @@ export function AppShell(): JSX.Element {
   const [inventory, setInventory] = useState<Array<{ id: string; sku: string; quantity: number }>>([]);
   const [machineLogs, setMachineLogs] = useState<Array<{ id: string; machineCode: string; runtimeMinutes: number; downtimeMinutes: number }>>([]);
   const [form, setForm] = useState({ fullName: '', employeeCode: '', monthlySalary: 0 });
+  const [question, setQuestion] = useState('');
+  const [aiAnswer, setAiAnswer] = useState('');
 
   useEffect(() => {
     if (!token) return;
@@ -52,6 +55,7 @@ export function AppShell(): JSX.Element {
           <article className="rounded-xl border border-white/10 p-4"><h2 className="mb-2">Retail Inventory</h2><div className="space-y-2">{inventory.slice(0,8).map((i)=><div key={i.id} className="rounded bg-slate-900 p-2 text-sm">{i.sku} · Qty {i.quantity}</div>)}</div></article>
         </section>
         <section className="rounded-xl border border-white/10 p-4"><h2 className="mb-3 text-lg">Machine Runtime vs Downtime</h2><div className="h-64"><ResponsiveContainer width="100%" height="100%"><BarChart data={machineChartData}><XAxis dataKey="machine" /><YAxis /><Tooltip /><Bar dataKey="runtime" fill="#4f46e5" /><Bar dataKey="downtime" fill="#ef4444" /></BarChart></ResponsiveContainer></div></section>
+        <section className="rounded-xl border border-white/10 p-4"><h2 className="mb-3 text-lg">AI Assistant (RAG)</h2><div className="flex gap-2"><input className="w-full rounded bg-slate-800 p-2" value={question} onChange={(e)=>setQuestion(e.target.value)} placeholder="Ask about SOP, attendance, production, logistics..."/><button className="rounded bg-emerald-500 px-3 py-2" onClick={async()=>{const cid=import.meta.env.VITE_DEV_COMPANY_ID as string; const r=await chatWithAi(cid, question); setAiAnswer(`${r.answer}\nSources: ${r.citations.join(', ')}`);}}>Ask</button></div><div className="mt-3"><input type="file" accept="application/pdf" onChange={async (e)=>{const f=e.target.files?.[0]; if(!f) return; const cid=import.meta.env.VITE_DEV_COMPANY_ID as string; await uploadCompanyPdf(cid,f);}}/></div><pre className="mt-3 whitespace-pre-wrap rounded bg-slate-900 p-3 text-sm">{aiAnswer}</pre></section>
       </main>
     </div>
   );
