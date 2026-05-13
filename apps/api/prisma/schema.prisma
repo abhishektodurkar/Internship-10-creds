@@ -172,17 +172,117 @@ model PayrollPayment {
   employee     Employee   @relation(fields: [employeeId], references: [id])
 }
 
-model CompanyModule { id String @id @default(cuid()) companyId String key String enabled Boolean @default(true) company Company @relation(fields: [companyId], references: [id]) }
-model Document { id String @id @default(cuid()) companyId String path String company Company @relation(fields:[companyId], references:[id]) createdAt DateTime @default(now()) }
-model Notification { id String @id @default(cuid()) companyId String title String body String company Company @relation(fields:[companyId], references:[id]) createdAt DateTime @default(now()) }
-model AuditLog { id String @id @default(cuid()) companyId String actorUserId String action String entity String entityId String company Company @relation(fields:[companyId], references:[id]) createdAt DateTime @default(now()) }
-model Supplier { id String @id @default(cuid()) companyId String name String createdAt DateTime @default(now()) }
-model Vehicle { id String @id @default(cuid()) companyId String registrationNo String createdAt DateTime @default(now()) }
-model Driver { id String @id @default(cuid()) companyId String name String createdAt DateTime @default(now()) }
-model Warehouse { id String @id @default(cuid()) companyId String name String createdAt DateTime @default(now()) }
-model Inventory { id String @id @default(cuid()) companyId String sku String quantity Int @default(0) createdAt DateTime @default(now()) }
-model Shipment { id String @id @default(cuid()) companyId String trackingNo String status String createdAt DateTime @default(now()) }
-model ProductionBatch { id String @id @default(cuid()) companyId String batchNo String status String createdAt DateTime @default(now()) }
-model MachineLog { id String @id @default(cuid()) companyId String machineCode String runtimeMinutes Int @default(0) downtimeMinutes Int @default(0) createdAt DateTime @default(now()) }
-model Analytics { id String @id @default(cuid()) companyId String metricKey String metricValue String createdAt DateTime @default(now()) }
-model AIChat { id String @id @default(cuid()) userId String companyId String question String answer String createdAt DateTime @default(now()) user User @relation(fields:[userId], references:[id]) }
+model CompanyModule {
+  id        String  @id @default(cuid())
+  companyId String
+  key       String
+  enabled   Boolean @default(true)
+  company   Company @relation(fields: [companyId], references: [id])
+}
+
+model Document {
+  id        String   @id @default(cuid())
+  companyId String
+  path      String
+  company   Company  @relation(fields: [companyId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  companyId String
+  title     String
+  body      String
+  company   Company  @relation(fields: [companyId], references: [id])
+  createdAt DateTime @default(now())
+}
+
+model AuditLog {
+  id          String   @id @default(cuid())
+  companyId   String
+  actorUserId String
+  action      String
+  entity      String
+  entityId    String
+  company     Company  @relation(fields: [companyId], references: [id])
+  createdAt   DateTime @default(now())
+}
+
+model Supplier {
+  id        String   @id @default(cuid())
+  companyId String
+  name      String
+  createdAt DateTime @default(now())
+}
+
+model Vehicle {
+  id             String   @id @default(cuid())
+  companyId      String
+  registrationNo String
+  createdAt      DateTime @default(now())
+}
+
+model Driver {
+  id        String   @id @default(cuid())
+  companyId String
+  name      String
+  createdAt DateTime @default(now())
+}
+
+model Warehouse {
+  id        String   @id @default(cuid())
+  companyId String
+  name      String
+  createdAt DateTime @default(now())
+}
+
+model Inventory {
+  id        String   @id @default(cuid())
+  companyId String
+  sku       String
+  quantity  Int      @default(0)
+  createdAt DateTime @default(now())
+}
+
+model Shipment {
+  id         String   @id @default(cuid())
+  companyId  String
+  trackingNo String
+  status     String
+  createdAt  DateTime @default(now())
+}
+
+model ProductionBatch {
+  id        String   @id @default(cuid())
+  companyId String
+  batchNo   String
+  status    String
+  createdAt DateTime @default(now())
+}
+
+model MachineLog {
+  id              String   @id @default(cuid())
+  companyId       String
+  machineCode     String
+  runtimeMinutes  Int      @default(0)
+  downtimeMinutes Int      @default(0)
+  createdAt       DateTime @default(now())
+}
+
+model Analytics {
+  id          String   @id @default(cuid())
+  companyId   String
+  metricKey   String
+  metricValue String
+  createdAt   DateTime @default(now())
+}
+
+model AIChat {
+  id        String   @id @default(cuid())
+  userId    String
+  companyId String
+  question  String
+  answer    String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id])
+}
