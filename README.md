@@ -5,23 +5,22 @@
 - Python 3.10+
 - pnpm (`npm i -g pnpm`)
 
-## Run locally
-From project root:
-
+## Recommended startup (works even if AI dependencies were missing)
 ```bash
 pnpm install
 pnpm dev
 ```
 
-That is all.
+This will:
+- prepare local env files
+- run Prisma generate + db push
+- start API + Web
+- auto-install AI Python requirements and start AI service
 
-`pnpm dev` automatically:
-- creates missing `.env` files
-- generates Prisma client
-- pushes schema to local SQLite DB (`apps/api/prisma/dev.db`)
-- starts API on `http://localhost:4000`
-- starts Web on `http://localhost:5173`
-- starts AI service on `http://localhost:8000`
+If you want only API + Web:
+```bash
+pnpm run dev:webapi
+```
 
 ## URLs
 - Web: http://localhost:5173
