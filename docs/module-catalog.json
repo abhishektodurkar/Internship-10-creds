@@ -1,0 +1,79 @@
+{
+  "industries": [
+    {
+      "key": "corrugated_box_manufacturing",
+      "name": "Corrugated Box Manufacturing",
+      "defaultModules": [
+        "raw_material_tracking",
+        "reel_management",
+        "production_batch_management",
+        "box_specification_management",
+        "machine_monitoring",
+        "defect_tracking",
+        "wastage_analytics",
+        "supplier_management",
+        "warehouse_management",
+        "production_scheduling",
+        "maintenance_logs",
+        "quality_control",
+        "purchase_orders",
+        "manufacturing_analytics",
+        "worker_productivity_tracking"
+      ]
+    },
+    {
+      "key": "shipping_logistics",
+      "name": "Shipping & Logistics",
+      "defaultModules": [
+        "shipment_tracking",
+        "dispatch_management",
+        "route_optimization",
+        "fleet_management",
+        "driver_management",
+        "vehicle_maintenance",
+        "delivery_verification",
+        "invoice_tracking",
+        "container_management",
+        "fuel_analytics",
+        "route_analytics",
+        "delayed_shipment_monitoring",
+        "logistics_dashboard",
+        "client_shipment_portal",
+        "gps_integration_ready"
+      ]
+    },
+    {
+      "key": "retail_warehouse",
+      "name": "Retail & Warehouse",
+      "defaultModules": [
+        "inventory_management",
+        "billing_system",
+        "pos_system",
+        "warehouse_tracking",
+        "supplier_management",
+        "customer_management",
+        "sales_analytics",
+        "product_movement_tracking",
+        "barcode_management",
+        "discount_offer_system",
+        "return_management",
+        "purchase_orders",
+        "revenue_analytics",
+        "multi_branch_support",
+        "product_recommendation_analytics"
+      ]
+    }
+  ],
+  "universalModules": [
+    "authentication",
+    "company_management",
+    "role_management",
+    "employee_management",
+    "attendance",
+    "hr_management",
+    "notifications",
+    "analytics_dashboard",
+    "document_management",
+    "ai_assistant"
+  ]
+}
