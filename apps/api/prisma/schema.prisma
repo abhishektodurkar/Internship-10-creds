@@ -7,16 +7,10 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-enum RoleScope {
-  SYSTEM
-  COMPANY
-}
-
-enum UserStatus {
-  ACTIVE
-  INACTIVE
-  INVITED
-}
+enum RoleScope { SYSTEM COMPANY }
+enum UserStatus { ACTIVE INACTIVE INVITED }
+enum EmploymentStatus { ACTIVE ON_LEAVE INACTIVE TERMINATED }
+enum LeaveStatus { PENDING APPROVED REJECTED }
 
 model Company {
   id             String          @id @default(cuid())
@@ -31,7 +25,9 @@ model Company {
   documents      Document[]
   notifications  Notification[]
   auditLogs      AuditLog[]
-
+  shifts         Shift[]
+  leaveRequests  LeaveRequest[]
+  payrollRuns    PayrollRun[]
   @@index([industryKey])
 }
 
@@ -47,33 +43,12 @@ model User {
   company       Company     @relation(fields: [companyId], references: [id])
   role          Role        @relation(fields: [roleId], references: [id])
   aiChatHistory AIChat[]
-
   @@index([companyId])
 }
 
-model Role {
-  id          String           @id @default(cuid())
-  key         String           @unique
-  name        String
-  scope       RoleScope        @default(COMPANY)
-  permissions RolePermission[]
-  users       User[]
-}
-
-model Permission {
-  id    String           @id @default(cuid())
-  key   String           @unique
-  roles RolePermission[]
-}
-
-model RolePermission {
-  roleId       String
-  permissionId String
-  role         Role       @relation(fields: [roleId], references: [id])
-  permission   Permission @relation(fields: [permissionId], references: [id])
-
-  @@id([roleId, permissionId])
-}
+model Role { id String @id @default(cuid()) key String @unique name String scope RoleScope @default(COMPANY) permissions RolePermission[] users User[] }
+model Permission { id String @id @default(cuid()) key String @unique roles RolePermission[] }
+model RolePermission { roleId String permissionId String role Role @relation(fields:[roleId], references:[id]) permission Permission @relation(fields:[permissionId], references:[id]) @@id([roleId, permissionId]) }
 
 model Department {
   id        String   @id @default(cuid())
@@ -81,39 +56,92 @@ model Department {
   companyId String
   company   Company  @relation(fields: [companyId], references: [id])
   employees Employee[]
+  createdAt DateTime @default(now())
+  @@unique([companyId, name])
 }
 
 model Employee {
-  id           String       @id @default(cuid())
-  companyId    String
-  departmentId String?
-  fullName     String
-  createdAt    DateTime     @default(now())
-  company      Company      @relation(fields: [companyId], references: [id])
-  department   Department?  @relation(fields: [departmentId], references: [id])
-  attendance   Attendance[]
+  id              String           @id @default(cuid())
+  companyId       String
+  departmentId    String?
+  fullName        String
+  email           String?
+  phone           String?
+  employeeCode    String
+  monthlySalary   Decimal          @db.Decimal(12, 2)
+  status          EmploymentStatus @default(ACTIVE)
+  createdAt       DateTime         @default(now())
+  updatedAt       DateTime         @updatedAt
+  company         Company          @relation(fields: [companyId], references: [id])
+  department      Department?      @relation(fields: [departmentId], references: [id])
+  attendance      Attendance[]
+  leaveRequests   LeaveRequest[]
+  payrollPayments PayrollPayment[]
+  @@index([companyId, departmentId])
+  @@unique([companyId, employeeCode])
+}
+
+model Shift {
+  id        String   @id @default(cuid())
+  companyId String
+  name      String
+  startTime String
+  endTime   String
+  createdAt DateTime @default(now())
+  company   Company  @relation(fields:[companyId], references:[id])
 }
 
 model Attendance {
-  id         String   @id @default(cuid())
-  employeeId String
-  checkInAt  DateTime
-  checkOutAt DateTime?
-  employee   Employee @relation(fields: [employeeId], references: [id])
-
+  id            String   @id @default(cuid())
+  employeeId    String
+  shiftId       String?
+  checkInAt     DateTime
+  checkOutAt    DateTime?
+  overtimeMins  Int      @default(0)
+  method        String   @default("manual")
+  employee      Employee @relation(fields: [employeeId], references: [id])
+  shift         Shift?   @relation(fields:[shiftId], references:[id])
   @@index([employeeId, checkInAt])
 }
 
-model CompanyModule {
-  id        String   @id @default(cuid())
-  companyId String
-  key       String
-  enabled   Boolean  @default(true)
-  company   Company  @relation(fields: [companyId], references: [id])
-
-  @@unique([companyId, key])
+model LeaveRequest {
+  id          String      @id @default(cuid())
+  companyId   String
+  employeeId  String
+  reason      String
+  startDate   DateTime
+  endDate     DateTime
+  status      LeaveStatus @default(PENDING)
+  createdAt   DateTime    @default(now())
+  approvedBy  String?
+  company     Company     @relation(fields:[companyId], references:[id])
+  employee    Employee    @relation(fields:[employeeId], references:[id])
 }
 
+model PayrollRun {
+  id          String           @id @default(cuid())
+  companyId   String
+  monthKey    String
+  totalAmount Decimal          @db.Decimal(14, 2)
+  createdAt   DateTime         @default(now())
+  company     Company           @relation(fields:[companyId], references:[id])
+  payments    PayrollPayment[]
+  @@unique([companyId, monthKey])
+}
+
+model PayrollPayment {
+  id          String    @id @default(cuid())
+  payrollRunId String
+  employeeId  String
+  baseSalary  Decimal   @db.Decimal(12, 2)
+  overtimePay Decimal   @db.Decimal(12, 2)
+  deductions  Decimal   @db.Decimal(12, 2)
+  netPay      Decimal   @db.Decimal(12, 2)
+  payrollRun  PayrollRun @relation(fields:[payrollRunId], references:[id])
+  employee    Employee  @relation(fields:[employeeId], references:[id])
+}
+
+model CompanyModule { id String @id @default(cuid()) companyId String key String enabled Boolean @default(true) company Company @relation(fields: [companyId], references: [id]) @@unique([companyId, key]) }
 model Document { id String @id @default(cuid()) companyId String path String company Company @relation(fields:[companyId], references:[id]) createdAt DateTime @default(now()) }
 model Notification { id String @id @default(cuid()) companyId String title String body String company Company @relation(fields:[companyId], references:[id]) createdAt DateTime @default(now()) }
 model AuditLog { id String @id @default(cuid()) companyId String actorUserId String action String entity String entityId String company Company @relation(fields:[companyId], references:[id]) createdAt DateTime @default(now()) }
